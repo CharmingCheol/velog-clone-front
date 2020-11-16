@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from "react-helmet";
 
 // component
 import Form from "components/Register/Form";
@@ -8,6 +9,9 @@ import * as S from "./style";
 
 const Register = () => (
   <>
+    <Helmet>
+      <title>회원가입 - velog</title>
+    </Helmet>
     <S.Layout>
       <S.Header>
         <h1>환영합니다!</h1>

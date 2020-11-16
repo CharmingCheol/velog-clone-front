@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from "react-helmet";
 
 // components
 import HomeAside from "components/Home/HomeAside";
@@ -10,6 +11,9 @@ import * as S from "./style";
 
 const Home = () => (
   <>
+    <Helmet>
+      <title>velog</title>
+    </Helmet>
     <S.HomeContainer>
       <HomeTabContainer />
       <S.MainContainer>

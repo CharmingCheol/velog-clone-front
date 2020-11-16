@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 // action
 import { uploadMarkdownImageRequest } from "store/actions/writeAction";
 
-// hooks
+// custom hooks
 import { useUpload } from "hooks";
 
 // component
@@ -29,17 +29,17 @@ const MainContainer = () => {
     stickToRight: false,
   });
 
-  // Link 컴포넌트에서 [확인] 버튼 클릭
+  // 링크 등록 팝업에서 [확인] 버튼 클릭
   const handleConfirmAddLink = useCallback((link) => {
     setAddLink((prev) => ({
       ...prev,
       visible: false,
     }));
     if (!window.codeMirror) return;
-    const doc = window.codeMirror.getDoc();
-    const cursor = doc.getCursor("end");
-    const selection = doc.getSelection();
     window.codeMirror.focus();
+    const doc = window.codeMirror.getDoc();
+    const cursor = doc.getCursor("end"); // 현재 커서 위치
+    const selection = doc.getSelection(); // 마우스 커서로 텍스트를 선택한 범위
     if (selection.length === 0) {
       doc.replaceSelection(`[링크텍스트](${link})`);
       doc.setSelection(
@@ -61,7 +61,7 @@ const MainContainer = () => {
     });
   }, []);
 
-  // Link 컴포넌트 닫기
+  // 링크 등록 팝업 닫기
   const handleCancelAddLink = useCallback(() => {
     setAddLink((prev) => ({
       ...prev,
@@ -69,48 +69,21 @@ const MainContainer = () => {
     }));
   }, []);
 
-  // Link 컴포넌트 출력
-  const handleOpenAddLink = useCallback(() => {
-    const { codeMirror } = window;
-    if (!codeMirror) return;
-
-    const doc = codeMirror.getDoc();
-    const cursor = doc.getCursor();
-    const cursorPos = codeMirror.cursorCoords(cursor);
-    const stickToRight = cursorPos.left > layoutRef.current.clientWidth - 352;
-    setAddLink({
-      top:
-        layoutRef.current.scrollTop +
-        cursorPos.top +
-        codeMirror.defaultTextHeight() / 2,
-      left: cursorPos.left,
-      visible: true,
-      stickToRight,
-    });
-  }, []);
-
-  // 툴바 버튼 클릭
+  // 툴바 버튼 요소 클릭
   const clickToolBar = useCallback(
     (mode) => {
       const { codeMirror } = window;
       if (!codeMirror) return;
-
       const doc = codeMirror.getDoc();
-
-      // cursor 위치(line, ch로 return 받음)
-      const cursor = doc.getCursor();
-
+      const cursor = doc.getCursor(); // cursor 위치(line, ch로 return 받음)
+      const line = doc.getLine(cursor.line); // 해당 line에 있는 text 값
       // drag 시작, 종료 범위(line, ch로 return 받음)
       const selection = {
         start: doc.getCursor("start"),
         end: doc.getCursor("end"),
       };
 
-      // 해당 line에 있는 text 값
-      const line = doc.getLine(cursor.line);
-
       // heading 작성 시 띄어쓰기까지 감지
-      // 해당 범위를 setSelection으로 잡음
       const selectWholeLine = () => {
         doc.setSelection(
           {
@@ -123,31 +96,31 @@ const MainContainer = () => {
           }
         );
       };
-
-      // 기존에 있는 #을 전부 제거
-      const removeHeading = (text) => text.replace(/#{1,6} /, "");
-
+      const removeHeading = (text) => text.replace(/#{1,6} /, ""); // 기존에 있는 #을 전부 제거
       const handlers = {
+        // h1
         heading1: () => {
           selectWholeLine();
           const plain = removeHeading(line);
           doc.replaceSelection(`# ${plain}`);
         },
+        // h2
         heading2: () => {
           selectWholeLine();
           const plain = removeHeading(line);
           doc.replaceSelection(`## ${plain}`);
         },
+        // h3
         heading3: () => {
           selectWholeLine();
           const plain = removeHeading(line);
           doc.replaceSelection(`### ${plain}`);
         },
+        // 볼드 font
         bold: () => {
-          // 드레그 범위에 있는 텍스트 값 가져오기
-          const selected = doc.getSelection();
+          const selected = doc.getSelection(); // 드레그 범위에 있는 텍스트 값 가져오기
           if (selected === "텍스트") {
-            // **텍스트**에서 텍스트만 drag 되어있는 경우(*은 무시)
+            // **텍스트**에서 텍스트만 drag 되어 있는지 체크
             const isBold = /\*\*(.*)\*\*/.test(
               doc.getRange(
                 {
@@ -172,7 +145,7 @@ const MainContainer = () => {
                   ch: selection.end.ch + 2,
                 }
               );
-              // **텍스트**를 텍스트로 바꿈
+              // **텍스트**를 텍스트로 바꾸고, 텍스트에다가 drag 적용
               doc.replaceSelection("텍스트");
               doc.setSelection(
                 {
@@ -187,7 +160,7 @@ const MainContainer = () => {
               return;
             }
           }
-          // **이 양쪽 끝에 있는 상태에서 drag 되어있는 경우
+          // **이 양쪽 끝에 있는 상태에서 drag 되어있는 경우, **을 제거
           if (/\*\*(.*)\*\*/.test(selected)) {
             doc.replaceSelection(selected.replace(/\*\*/g, ""));
             doc.setSelection(
@@ -202,7 +175,7 @@ const MainContainer = () => {
             );
             return;
           }
-          // 특정 텍스트를 drag할 경우
+          // 특정 텍스트를 drag할 경우 양쪽에 **을 추가
           if (selected.length > 0) {
             doc.replaceSelection(`**${selected}**`);
             doc.setSelection(
@@ -231,6 +204,7 @@ const MainContainer = () => {
             }
           );
         },
+        // 이탤릭 폰트
         italic: () => {
           let selected = doc.getSelection();
           if (selected.length === 0) {
@@ -280,7 +254,6 @@ const MainContainer = () => {
               };
             }
           }
-
           if (/_(.*)_/.test(selected)) {
             const plain = selected.replace(/^_/, "").replace(/_$/, "");
             doc.replaceSelection(plain);
@@ -310,9 +283,9 @@ const MainContainer = () => {
             );
           }
         },
+        // strike 폰트
         strike: () => {
           let selected = doc.getSelection();
-
           if (selected.length === 0) {
             doc.replaceSelection("~~텍스트~~");
             doc.setSelection(
@@ -360,7 +333,6 @@ const MainContainer = () => {
               };
             }
           }
-
           if (/~~(.*)~~/.test(selected)) {
             const plain = selected.replace(/^~~/, "").replace(/~~$/, "");
             doc.replaceSelection(plain);
@@ -390,6 +362,7 @@ const MainContainer = () => {
             );
           }
         },
+        // 인용구 적용
         blockquote: () => {
           const matches = /^> /.test(line);
           doc.setSelection(
@@ -410,12 +383,25 @@ const MainContainer = () => {
             });
           }
         },
+        // 링크 등록
         link: () => {
-          handleOpenAddLink();
+          // handleOpenAddLink();
+          if (!codeMirror) return;
+          const cursorPos = codeMirror.cursorCoords(cursor); // 현재 커서 좌표
+          // 마크다운 랜더링 화면 범위에 링크 확인 모달이 침범했는지 체크
+          const stickToRight = cursorPos.left > layoutRef.current.clientWidth - 352;
+          setAddLink({
+            top: layoutRef.current.scrollTop + cursorPos.top + codeMirror.defaultTextHeight() / 2,
+            left: cursorPos.left,
+            visible: true,
+            stickToRight,
+          });
         },
+        // 이미지 업로드
         upload: () => {
           setImage();
         },
+        // code 삽입
         codeblock: () => {
           const selected = doc.getSelection();
           if (selected.length === 0) {
@@ -437,17 +423,19 @@ const MainContainer = () => {
       };
       const handler = handlers[mode];
       if (!handler) return;
-      handler();
       codeMirror.focus();
+      handler();
     },
-    [handleOpenAddLink, setImage]
+    [setImage]
   );
 
+  // 업로드한 이미지 전송
   useEffect(() => {
     if (!image) return;
     dispatch(uploadMarkdownImageRequest(image));
   }, [dispatch, image]);
 
+  // 전달받은 이미지 경로를 화면에 랜더링
   useEffect(() => {
     const { codeMirror } = window;
     if (!markdownImage || !codeMirror) return;

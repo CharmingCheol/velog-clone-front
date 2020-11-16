@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Helmet } from "react-helmet";
 
 // components
 import MarkDownContainer from "components/Write/MarkDownContainer";
@@ -17,9 +18,7 @@ import * as S from "./style";
 const Write = () => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const printWriteSetting = useSelector(
-    (store) => store.write.printWriteSetting
-  );
+  const printWriteSetting = useSelector((store) => store.write.printWriteSetting);
 
   useEffect(() => {
     const postId = location.search.split("=")[1];
@@ -30,6 +29,9 @@ const Write = () => {
 
   return (
     <>
+      <Helmet>
+        <title>새 글 작성</title>
+      </Helmet>
       <S.Layout>
         <div className="container">
           <section className="left">

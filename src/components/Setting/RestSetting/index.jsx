@@ -20,20 +20,15 @@ const RestSetting = () => {
   const fakeState = useRef(true);
   const fakeState2 = useRef(false);
   const velogTitle = useSelector((state) => state.settingReducer.velogTitle);
-  const { email, github, twitter, facebook, homePage } = useSelector(
-    (state) => state.settingReducer.socialInfo
-  );
+  const { email, github, twitter, facebook, homePage } = useSelector((state) => state.settingReducer.socialInfo);
   const userEmail = useSelector((state) => state.settingReducer.userEmail);
-  const commentNotification = useSelector(
-    (state) => state.settingReducer.commentNotification
-  );
-  const updateNotification = useSelector(
-    (state) => state.settingReducer.updateNotification
-  );
+  const commentNotification = useSelector((state) => state.settingReducer.commentNotification);
+  const updateNotification = useSelector((state) => state.settingReducer.updateNotification);
 
   const onTitleModClick = useCallback(() => {
     setTitleSaved(false);
   });
+
   const onTitleSumbit = useCallback((e) => {
     e.preventDefault();
     dispatch(
@@ -43,9 +38,11 @@ const RestSetting = () => {
     );
     setTitleSaved(true);
   });
+
   const onAddClick = useCallback(() => {
     setSocialInfoSaved(false);
   }, []);
+
   const onSubmit = useCallback((e) => {
     e.preventDefault();
     dispatch(
@@ -54,8 +51,7 @@ const RestSetting = () => {
           email: e.target.children[0].children[0].children[1].value,
           github: e.target.children[0].children[1].children[1].value,
           twitter: e.target.children[0].children[2].children[1].value,
-          facebook:
-            e.target.children[0].children[3].children[1].children[1].value,
+          facebook: e.target.children[0].children[3].children[1].children[1].value,
           homePage: e.target.children[0].children[4].children[1].value,
         },
       })
@@ -63,26 +59,25 @@ const RestSetting = () => {
     setSocialInfoSaved(true);
     // 서버에 데이터 갱신하는 것 추가 필요.
   }, []);
+
   const onCommentToggleClick = useCallback(() => {
-    // dispatch(
-    //   submitNotifySettingRequest({
-    //     commentNotification: !commentNotification,
-    //     updateNotification,
-    //   })
-    // );
-    console.log(fakeState);
-    fakeState.current = !fakeState.current;
-  }, []);
+    dispatch(
+      submitNotifySettingRequest({
+        commentNotification: !commentNotification,
+        updateNotification,
+      })
+    );
+  }, [commentNotification, updateNotification]);
+
   const onUpdateToggleClick = useCallback(() => {
-    // dispatch(
-    //   submitNotifySettingRequest({
-    //     commentNotification,
-    //     updateNotification: !updateNotification,
-    //   })
-    // );
-    console.log(fakeState2);
-    fakeState2.current = !fakeState2.current;
-  }, []);
+    dispatch(
+      submitNotifySettingRequest({
+        commentNotification,
+        updateNotification: !updateNotification,
+      })
+    );
+    // fakeState2.current = !fakeState2.current;
+  }, [commentNotification, updateNotification]);
 
   useEffect(() => {
     dispatch(loadUserSettingRequest("exampleUser"));
@@ -100,9 +95,7 @@ const RestSetting = () => {
               <>
                 <div className="contents">{velogTitle}</div>
                 <div className="edit-wrapper">
-                  <UnderlineButton onClick={onTitleModClick}>
-                    수정
-                  </UnderlineButton>
+                  <UnderlineButton onClick={onTitleModClick}>수정</UnderlineButton>
                 </div>
               </>
             ) : (
@@ -119,9 +112,7 @@ const RestSetting = () => {
             )}
           </div>
         </div>
-        <div className="description">
-          개인 페이지의 좌측 상단에 나타나는 페이지 제목입니다.
-        </div>
+        <div className="description">개인 페이지의 좌측 상단에 나타나는 페이지 제목입니다.</div>
       </S.SettingItem>
       <S.SettingItem>
         <div className="wrapper">
@@ -132,9 +123,7 @@ const RestSetting = () => {
             <div className="contents">
               {socialInfoSaved ? (
                 !email && !github && !twitter && !facebook && !homePage ? (
-                  <UnderlineButton onClick={onAddClick}>
-                    정보 추가
-                  </UnderlineButton>
+                  <UnderlineButton onClick={onAddClick}>정보 추가</UnderlineButton>
                 ) : (
                   <>
                     <SocialInfoList
@@ -149,23 +138,17 @@ const RestSetting = () => {
                   </>
                 )
               ) : (
-                <SocialInfo
-                  onSubmit={onSubmit}
-                  socialInfo={{ email, github, twitter, facebook, homePage }}
-                />
+                <SocialInfo onSubmit={onSubmit} socialInfo={{ email, github, twitter, facebook, homePage }} />
               )}
             </div>
-            {socialInfoSaved &&
-              (email || github || twitter || facebook || homePage) && (
-                <div className="edit-wrapper">
-                  <UnderlineButton onClick={onAddClick}>수정</UnderlineButton>
-                </div>
-              )}
+            {socialInfoSaved && (email || github || twitter || facebook || homePage) && (
+              <div className="edit-wrapper">
+                <UnderlineButton onClick={onAddClick}>수정</UnderlineButton>
+              </div>
+            )}
           </div>
         </div>
-        <div className="description">
-          포스트 및 블로그에서 보여지는 프로필에 공개되는 소셜 정보입니다.
-        </div>
+        <div className="description">포스트 및 블로그에서 보여지는 프로필에 공개되는 소셜 정보입니다.</div>
       </S.SettingItem>
       <S.SettingItem>
         <div className="wrapper">
@@ -176,9 +159,7 @@ const RestSetting = () => {
             <div className="contents">{userEmail}</div>
           </div>
         </div>
-        <div className="description">
-          회원 인증 또는 시스템에서 발송하는 이메일을 수신하는 주소입니다.
-        </div>
+        <div className="description">회원 인증 또는 시스템에서 발송하는 이메일을 수신하는 주소입니다.</div>
       </S.SettingItem>
       <S.SettingItem>
         <div className="wrapper">
@@ -252,9 +233,7 @@ const RestSetting = () => {
             </div>
           </div>
         </div>
-        <div className="description">
-          탈퇴 시 작성하신 포스트 및 댓글이 모두 삭제되며 복구되지 않습니다.
-        </div>
+        <div className="description">탈퇴 시 작성하신 포스트 및 댓글이 모두 삭제되며 복구되지 않습니다.</div>
       </S.SettingItem>
     </S.RestSettingSection>
   );

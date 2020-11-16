@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Helmet } from "react-helmet";
 
 // componenets
 import CommentContainer from "components/PostDetail/CommentContainer";
@@ -35,6 +36,9 @@ const PostDetail = () => {
     <>
       {postInfo ? (
         <>
+          <Helmet>
+            <title>{params.title.replace(/-/g, " ")}</title>
+          </Helmet>
           <S.Wrapper>
             <PostTocContainer />
             <S.Container>
